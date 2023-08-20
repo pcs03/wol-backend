@@ -3,7 +3,6 @@ import bodyParser from 'body-parser';
 import 'dotenv/config';
 import pool from './queries';
 import { sign } from 'jsonwebtoken';
-import exp from 'constants';
 import cors from 'cors';
 import { exec } from 'child_process';
 import ping from 'ping';
