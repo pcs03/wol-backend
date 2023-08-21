@@ -51,10 +51,14 @@ export const updateDevice = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   const { devicename, username, ip, mac } = req.body;
 
+  console.log(devicename, username, ip, mac, id);
+
   const response = await pool.query(
-    'UPDATE devices SET devicename = $1, username = $2, ip = $3, mac = $4 WHERE id = $5',
-    [devicename, username, ip, mac],
+    'UPDATE devices SET devicename = $1, username = $2, ip = $3, mac = $4 WHERE id = $5 RETURNING devicename, username, ip, mac, id',
+    [devicename, username, ip, mac, id],
   );
+
+  console.log(response);
 
   res.status(200).json(response.rows[0]);
 };
@@ -85,7 +89,7 @@ export const pingDevice = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
 
   const response = await pool.query('SELECT * FROM devices WHERE id = $1', [id]);
-  const ip = response.rows[0];
+  const ip = response.rows[0].ip;
 
   const pingResponse = await ping.promise.probe(ip, { timeout: 1, extra: ['-c', '1'] });
   const alive = pingResponse.alive;
