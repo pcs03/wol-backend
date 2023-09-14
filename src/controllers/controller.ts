@@ -36,7 +36,7 @@ export const getDeviceById = async (req: Request, res: Response) => {
 };
 
 export const createDevice = async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  // const id = parseInt(req.params.id);
   const { devicename, username, ip, mac } = req.body;
 
   const response = await pool.query(
@@ -67,6 +67,7 @@ export const removeDevice = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
 
   const response = await pool.query('DELETE FROM devices WHERE id = $1', [id]);
+  console.log(response);
 
   res.status(200).json({ id: id });
 };
@@ -101,7 +102,7 @@ export const wolDevice = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
 
   const response = await pool.query('SELECT * FROM devices WHERE id = $1', [id]);
-  const mac = response.rows[0].ip;
+  const mac = response.rows[0].mac;
 
   wake(mac, (error, results) => {
     res.status(200).json({ status: results });
@@ -110,6 +111,7 @@ export const wolDevice = async (req: Request, res: Response) => {
 
 export const shutdownDevice = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
+  console.log(id);
 
   const response = await pool.query('SELECT * FROM devices WHERE id = $1', [id]);
   const { username, ip } = response.rows[0];
