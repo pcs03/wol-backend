@@ -58,8 +58,6 @@ export const updateDevice = async (req: Request, res: Response) => {
     [devicename, username, ip, mac, id],
   );
 
-  console.log(response);
-
   res.status(200).json(response.rows[0]);
 };
 
