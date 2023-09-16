@@ -5,6 +5,7 @@ import { sign } from 'jsonwebtoken';
 import ping from 'ping';
 import { wake } from 'wol';
 import { exec } from 'child_process';
+import bcrypt from 'bcrypt';
 
 const pool = new Pool({
   user: process.env.DBUSER,
@@ -70,15 +71,31 @@ export const removeDevice = async (req: Request, res: Response) => {
   res.status(200).json({ id: id });
 };
 
+export const registerUser = async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const response = await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [username, passwordHash]);
+
+  res.status(200).json({ status: response });
+};
+
 export const loginUser = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  const response = await pool.query('SELECT FROM users WHERE username = $1 AND password = $2', [username, password]);
+  const response = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
-  const jwtExpSeconds = 3600;
+  if (response.rows[0]) {
+    const match = await bcrypt.compare(password, response.rows[0].password);
 
-  if (response.rows.length > 0) {
-    res.status(200).json({ success: true, token: generateJwt(username, jwtExpSeconds), exp: jwtExpSeconds });
+    if (match) {
+      const jwtExpSeconds = 3600;
+      const jwtToken = await generateJwt(username, jwtExpSeconds);
+      res.status(200).json({ success: true, token: jwtToken, exp: jwtExpSeconds });
+    } else {
+      res.status(401).json({ success: false });
+    }
   } else {
     res.status(401).json({ success: false });
   }
