@@ -50,13 +50,13 @@ export const createDevice = async (req: Request, res: Response) => {
 
 export const updateDevice = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const { devicename, username, ip, mac } = req.body;
+  const { devicename, username, ip, mac, devicetype } = req.body;
 
   console.log(devicename, username, ip, mac, id);
 
   const response = await pool.query(
-    'UPDATE devices SET devicename = $1, username = $2, ip = $3, mac = $4 WHERE id = $5 RETURNING devicename, username, ip, mac, id',
-    [devicename, username, ip, mac, id],
+    'UPDATE devices SET devicename = $1, username = $2, ip = $3, mac = $4, devicetype = $6 WHERE id = $5 RETURNING devicename, username, ip, mac, id',
+    [devicename, username, ip, mac, id, devicetype],
   );
 
   res.status(200).json(response.rows[0]);
