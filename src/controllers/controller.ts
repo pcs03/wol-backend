@@ -38,11 +38,11 @@ export const getDeviceById = async (req: Request, res: Response) => {
 
 export const createDevice = async (req: Request, res: Response) => {
   // const id = parseInt(req.params.id);
-  const { devicename, username, ip, mac } = req.body;
+  const { devicename, username, ip, mac, devicetype } = req.body;
 
   const response = await pool.query(
-    'INSERT INTO devices (devicename, username, ip, mac) VALUES ($1, $2, $3, $4) RETURNING *',
-    [devicename, username, ip, mac],
+    'INSERT INTO devices (devicename, username, ip, mac, devicetype) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [devicename, username, ip, mac, devicetype],
   );
 
   res.status(201).json(response.rows[0]);
