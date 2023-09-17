@@ -90,7 +90,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const match = await bcrypt.compare(password, response.rows[0].password);
 
     if (match) {
-      const jwtExpSeconds = 3600;
+      const jwtExpSeconds = 86400;
       const jwtToken = await generateJwt(username, jwtExpSeconds);
       res.status(200).json({ success: true, token: jwtToken, exp: jwtExpSeconds });
     } else {
