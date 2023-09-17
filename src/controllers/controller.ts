@@ -120,19 +120,35 @@ export const wolDevice = async (req: Request, res: Response) => {
   const mac = response.rows[0].mac;
 
   wake(mac, (error, results) => {
-    res.status(200).json({ status: results });
+    console.log(error);
+    console.log(results);
+    if (error) {
+      res.status(400).json({ status: error });
+    } else {
+      res.status(200).json({ status: results });
+    }
   });
 };
 
 export const shutdownDevice = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  console.log(id);
 
   const response = await pool.query('SELECT * FROM devices WHERE id = $1', [id]);
   const { username, ip } = response.rows[0];
 
-  const shutdown = exec(`ssh ${username}@${ip} sudo shutdown -h now`);
-  res.status(200).json({ status: shutdown });
+  exec(`ssh ${username}@${ip} sudo shutdown -h now`, (error, results) => {
+    console.log(error);
+    console.log(results);
+    if (error) {
+      if (error.code == 255) {
+        res.status(200).json({ status: error }); // This error is expected behavior when executing a shutdown from SSH
+      } else {
+        res.status(400).json({ status: error });
+      }
+    } else {
+      res.status(200).json({ status: results });
+    }
+  });
 };
 
 export default pool;
